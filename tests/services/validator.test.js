@@ -1,4 +1,4 @@
-import Validator from '../../models/validator.js'
+import Validator from '../../services/validator.js'
 import FakeKeyValueDatabase from '../doubles/fakeKeyValueDatabase.js'
 
 let database;

@@ -2,34 +2,36 @@ import { ReadableStream, WritableStream } from 'streams';
 import { httpRequest } from 'http-request';
 import { createResponse } from 'create-response';
 import { TextEncoderStream, TextDecoderStream } from 'text-encode-transform';
+import { EdgeKV } from './edgekv.js';
 import { logger } from 'log';
 
-const EMAIL_REGEX = /wpforms\[fields\]\[1\][\\\"nr\s]+(?<email>[a-zA-Z0-9]+@[a-zA-Z0-9]+[\.][a-zA-Z]+)/;
+import { Validator } from './services/validator.js';
+import { Extractor } from './services/extractor.js';
+
 
 export async function responseProvider(request) {
     let error = "None";
-
+    let validationResult = true;
     const inputObject = await request.text();
     const inputText = JSON.stringify(inputObject);
-    let email = "Not found";
-    
 
     try {
-        let emailMatch = inputText.match(EMAIL_REGEX);
-        if (emailMatch) {
-            email = emailMatch.groups.email;
-        }
-        if (email === "bad@actor.com") {
-            error = "Hacker detected";
-        }
+        const database = new EdgeKVDatabase();
+        const validator = new Validator(database);
+        const extractor = new Extractor();
+
+        const emailAddress = extractor.getEmailAddress(inputText);
+        const phoneNumber = extractor.getPhoneNumber(inputText);
+
+        validationResult = validator.byEmailAndPhoneNumberHistorically(email, )
+
     } catch (err) {
         error = "Regex matching error " + err.message;
     }
     
     const url = `${request.scheme}://${request.host}${request.url}`;
 
-
-    if (error !== "None") {
+    if (error !== "None" || !validationResult) {
         return createResponse(
             400,
             { 'Content-Type': ['application/json'] },
@@ -57,4 +59,21 @@ export async function responseProvider(request) {
             );
         }
     );
+}
+
+class EdgeKVDatabase {
+    constructor () {
+        this.store = new EdgeKV({namespace: "formvalidator", group: "default"});
+    }
+
+    async getByKey(key) {
+        return await this.store.getText({ item: key});
+    }
+
+    async set(key, value) {
+        await this.store.putText({
+            item: key,
+            value: value
+        });
+    }
 }

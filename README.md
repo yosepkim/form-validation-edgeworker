@@ -30,6 +30,7 @@ The function that one need to inject the validation code is `responseProvider`. 
 ## Additonal Resources
 Other use cases and examples can be found in the [github repository](https://github.com/akamai/edgeworkers-examples).
 
+* [EdgeWorker/KV Live Example Collections](https://www.edgecompute.live/)
 * [EdgeKV Documentation](https://techdocs.akamai.com/edgekv/docs)
 * [EdgeWorkers Documentation](https://techdocs.akamai.com/edgeworkers/docs)
 * [EdgeWorkers API Reference](https://techdocs.akamai.com/edgeworkers/reference/api)

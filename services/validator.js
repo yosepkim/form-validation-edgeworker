@@ -1,4 +1,4 @@
-export default class Validator {
+export class Validator {
 	constructor(database) {
 		this.database = database;
 	}
@@ -50,3 +50,5 @@ export default class Validator {
 		
 	}
 }
+
+export default Validator;
