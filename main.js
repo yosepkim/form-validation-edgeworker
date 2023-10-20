@@ -23,7 +23,7 @@ export async function responseProvider(request) {
         const emailAddress = extractor.getEmailAddress(inputText);
         const phoneNumber = extractor.getPhoneNumber(inputText);
 
-        validationResult = validator.byEmailAndPhoneNumberHistorically(email, )
+        validationResult = validator.byEmailAndPhoneNumberHistorically(email, phoneNumber);
 
     } catch (err) {
         error = "Regex matching error " + err.message;

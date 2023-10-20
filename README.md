@@ -27,10 +27,19 @@ The following diagram depicts how a request flow from the browser to the origin 
 
 The function that one need to inject the validation code is `responseProvider`. The validation logic is coded in the `main.js` file.
 
-## Additonal Resources
+## Run tests
+Most of the code is developed using Test-Driven Development (TDD) methodology, hence the repo contains automated tests that describe expected behaviors of the code. First, install node, then run the following command to execute tests:
+
+```shell
+$ node --experimental-vm-modules node_modules/.bin/jest
+```
+
+Note that `main.js` is not covedred by any tests.
+
+
+## Additonal resources
 Other use cases and examples can be found in the [github repository](https://github.com/akamai/edgeworkers-examples).
 
-* [EdgeWorker/KV Live Example Collections](https://www.edgecompute.live/)
 * [EdgeKV Documentation](https://techdocs.akamai.com/edgekv/docs)
 * [EdgeWorkers Documentation](https://techdocs.akamai.com/edgeworkers/docs)
 * [EdgeWorkers API Reference](https://techdocs.akamai.com/edgeworkers/reference/api)
