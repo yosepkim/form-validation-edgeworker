@@ -53,7 +53,7 @@ export async function responseProvider(request) {
             return createResponse(
                 response.status,
                 response.getHeaders(),
-                response.body
+                response.body   
             );
         }
     );

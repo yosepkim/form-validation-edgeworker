@@ -1,0 +1,9 @@
+{
+  "name": "IntercaptiveFormValidator",
+  "description": "EdgeWorker function to intercept a request to validate form submission",
+  "version": "1.0.0",
+  "type": "module",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
