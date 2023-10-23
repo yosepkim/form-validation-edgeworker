@@ -21,7 +21,7 @@ export class Validator {
 		const ALPHANUMBER_REGEX = /^(?<firstPart>[a-zA-Z]{3,})(?<secondPart>[0-9]{2,})$/
 		const matchResult = text.match(ALPHANUMBER_REGEX);
 
-		return matchResult.groups;
+		return (matchResult === null) ? null : matchResult.groups;
 	}
 
 	byEmailAndPhoneNumberHistorically(emailAddress, phoneNumber) {

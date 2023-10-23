@@ -28,6 +28,11 @@ test('validates a single phone number', () => {
 	expect(validator.isValidPhoneNumber('2292=12333')).toBe(false);
 });
 
+test('extracts username by the alpha-numberic pattern', () => {
+	expect(validator.extractAlphaNumbericPattern('myname12345')).toMatchObject({"firstPart": "myname", "secondPart": "12345"});
+	expect(validator.extractAlphaNumbericPattern('john')).toBeNull();
+});
+
 test('allows a valid email address and phone number', () => {
 	let result = validator.byEmailAndPhoneNumberHistorically('email0001@mail.com', '111-222-3333');
 	expect(result).toBe(true);
