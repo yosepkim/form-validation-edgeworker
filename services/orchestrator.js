@@ -12,17 +12,39 @@ export class Orchestrator {
 	    const inputText = JSON.stringify(inputObject);
 	    const url = `${request.scheme}://${request.host}${request.url}`;
 
-		if (!this.extractAndValidate(inputText)) {
-	        return createResponse(
-	            400,
+	    try {
+	    	const emailAddress = this.extractor.getEmailAddress(inputText);
+	    	const phoneNumber = this.extractor.getPhoneNumber(inputText);
+
+	    	const result = await this.validator.byEmailAndPhoneNumberHistorically(emailAddress, phoneNumber);
+			if (!result.isValid) {
+		        return createResponse(
+		            400,
+		            { 'Content-Type': ['application/json'] },
+		            JSON.stringify({ 
+		                path: request.path,
+		                text: inputText,
+		                url: url,
+		                reason: result.reason,
+		                emailAddress: emailAddress,
+		                phoneNumber: phoneNumber
+		            })
+		        );
+		    }
+		} catch (exception) {
+			return createResponse(
+	            500,
 	            { 'Content-Type': ['application/json'] },
 	            JSON.stringify({ 
 	                path: request.path,
 	                text: inputText,
-	                url: url
+	                url: url,
+	                error: exception,
+	                errorMessage: exception.message,
+	                stacktrace: exception.stack
 	            })
-	        );
-	    }
+		    );
+		}
 
 	    const options = {
 	        method: request.method,
@@ -39,13 +61,6 @@ export class Orchestrator {
 	            );
 	        }
 	    );
-	}
-
-	extractAndValidate(inputText) {
-        const emailAddress = this.extractor.getEmailAddress(inputText);
-        const phoneNumber = this.extractor.getPhoneNumber(inputText);
-
-        return this.validator.byEmailAndPhoneNumberHistorically(emailAddress, phoneNumber);
 	}
 }
 

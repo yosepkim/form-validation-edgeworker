@@ -1,4 +1,4 @@
 {
-    "edgeworker-version":"0.18",
+    "edgeworker-version":"0.34",
     "description":"Validate an instant quote form submission."
 }

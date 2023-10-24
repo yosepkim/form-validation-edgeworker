@@ -9,23 +9,34 @@ import { Orchestrator } from './services/orchestrator.js';
 
 
 export async function responseProvider(request) {
-    const database = new EdgeKVDatabase();
-    const orchestrator = new Orchestrator(database);
+    try {
+        const database = new EdgeKVDatabase();
+        const orchestrator = new Orchestrator(database);
 
-    return orcherstrator.run(request, httpRequest, createResponse);
+        return orchestrator.run(request, httpRequest, createResponse);
+    } catch (exception) {
+        return createResponse(
+            500,
+            { 'Content-Type': ['application/json'] },
+            JSON.stringify({ 
+                path: request.path,
+                errorMessage: exception.message
+            })
+        );
+    }
 }
 
 class EdgeKVDatabase {
     constructor () {
-        this.store = new EdgeKV({namespace: "formvalidator", group: "default"});
+        this.store = new EdgeKV({namespace: "formvalidator", group: "EmailPhoneValidation"});
     }
 
-    async getByKey(key) {
-        return await this.store.getText({ item: key});
+    getByKey(key) {
+        return this.store.getText({ item: key });
     }
 
-    async set(key, value) {
-        await this.store.putText({
+    set(key, value) {
+        this.store.putTextNoWait({
             item: key,
             value: value
         });

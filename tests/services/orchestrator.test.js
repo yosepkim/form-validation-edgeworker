@@ -1,28 +1,24 @@
+import { jest } from '@jest/globals'
 import Orchestrator from '../../services/orchestrator.js'
 import FakeKeyValueDatabase from '../doubles/fakeKeyValueDatabase.js'
 
-let orchestrator;
-
-beforeEach(() => {
-	orchestrator = new Orchestrator(new FakeKeyValueDatabase());
-});
-
-test('handles both happy and bad scenarios', async() => {
-	const baseMockRequest = {
-		scheme: 'https',
-		host: 'host.com',
-		url: 'some-url',
-		path: '/path',
-		method: 'POST',
-		getHeaders: () => {
-			return {
-				header1: 'value1',
-				header2: 'value2'
-			}
-				
+const baseMockRequest = {
+	scheme: 'https',
+	host: 'host.com',
+	url: 'some-url',
+	path: '/path',
+	method: 'POST',
+	getHeaders: () => {
+		return {
+			header1: 'value1',
+			header2: 'value2'
 		}
+			
 	}
+}
 
+test('handles both happy and negative paths', async() => {
+	const orchestrator = new Orchestrator(new FakeKeyValueDatabase());
 	const mockRequest1 = {
 		...baseMockRequest,
 		text: async () => { 
@@ -160,4 +156,55 @@ Content-Disposition: form-data; name="wpforms[fields][3]"
 	expect(result.status).toBe(200);
 	result = await orchestrator.run(mockRequest6, mockHttpRequest, mockCreateResponse);
 	expect(result.status).toBe(400);
+});
+
+test('handles unexpected exceptions', async() => {
+	FakeKeyValueDatabase.prototype.getByKey = jest.fn().mockImplementationOnce(() => {
+		throw "Oh, no!";
+	});
+	const fakeDatabase = new FakeKeyValueDatabase();
+	const orchestrator = new Orchestrator(fakeDatabase);
+
+	const mockRequest = {
+		...baseMockRequest,
+		text: async () => { 
+			return new Promise((resolve, reject) => {
+				resolve(`------WebKitFormBoundaryrKTVAUIF06uExLdC
+Content-Disposition: form-data; name="wpforms[fields][1]"
+
+differentEmail1234@address.com
+------WebKitFormBoundaryrKTVAUIF06uExLdC
+Content-Disposition: form-data; name="wpforms[fields][3]"
+
+(770) 670-9999
+------WebKitFormBoundaryrKTVAUIF06uExLdC`);
+			})
+		}
+	}
+
+	const mockHttpRequest = (url, options) => {
+		return new Promise((resolve, reject) => {
+			resolve({ 
+				status: 200,
+				body: 'response body',
+				getHeaders: () => {
+					return {
+						header1: 'some-value'
+					}
+				}
+			})
+		})
+	};
+
+	const mockCreateResponse = (status, headers, body) => {
+		return new Promise((resolve, reject) => {
+			resolve({
+				status: status,
+				body: body
+			})
+		});
+	}
+
+	let result = await orchestrator.run(mockRequest, mockHttpRequest, mockCreateResponse);
+	expect(result.status).toBe(500);
 });

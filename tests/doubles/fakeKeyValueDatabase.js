@@ -4,7 +4,9 @@ export default class FakeKeyValueDatabase {
 	}
 
 	getByKey(key) {
-		return this.store[key];
+		const returned = this.store[key];
+		if (returned === undefined) return null;
+		return returned;
 	}
 
 	set(key, value) {

@@ -24,30 +24,46 @@ export class Validator {
 		return (matchResult === null) ? null : matchResult.groups;
 	}
 
-	byEmailAndPhoneNumberHistorically(emailAddress, phoneNumber) {
-		if (!this.isValidEmailAddress(emailAddress) || !this.isValidPhoneNumber(phoneNumber)) return false;
-
-		const username = this.getUserNameFromEmailAddress(emailAddress);
-		if (username.length >= 24) return false;
-
-		const usernameGoups = this.extractAlphaNumbericPattern(username);
-
-		if (usernameGoups) {
-			const key = `${usernameGoups.firstPart}|${phoneNumber}`;
-			const previousEntries = this.database.getByKey(key);
-
-			if (previousEntries === undefined) { 
-				this.database.set(key, 1);
-				return true;
-			} else if (previousEntries < 2) {
-				this.database.set(key, previousEntries + 1);
-				return true;
-			}
-			this.database.set(key, previousEntries + 1);
-			return false;
+	async byEmailAndPhoneNumberHistorically(emailAddress, phoneNumber) {
+		if (!this.isValidEmailAddress(emailAddress)) {
+			return this.buildResponse(false, "Invalid email");
 		}
-		return true;
+		if (!this.isValidPhoneNumber(phoneNumber)) {
+			return this.buildResponse(false, "Invalid phone");
+		}
+		const username = this.getUserNameFromEmailAddress(emailAddress);
+		if (username.length >= 24) {
+			return this.buildResponse(false, "Username of the email too long");
+		}
+
+		const usernameGroups = this.extractAlphaNumbericPattern(username);
+
+		if (usernameGroups) {
+			const key = `${usernameGroups.firstPart}-${phoneNumber}`;
+			const previousEntries = await this.database.getByKey(key);
+
+			if (previousEntries === null) { 
+				this.database.set(key, "1");
+				return this.buildResponse(true, "");
+			}
+
+			const currentCount = parseInt(previousEntries);
+			if (currentCount < 2) {
+				this.database.set(key, currentCount + 1);
+				return this.buildResponse(true, "");
+			}
+
+			this.database.set(key, currentCount + 1);
+			return this.buildResponse(false, `Repeated email and phone number detected: ${previousEntries}`);
+		}
+		return this.buildResponse(true, "");
 		
+	}
+	buildResponse(isValid, reason) {
+		return {
+			isValid: isValid,
+			reason: reason
+		}
 	}
 }
 
