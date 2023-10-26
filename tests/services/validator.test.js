@@ -61,7 +61,7 @@ test('allows the same email address and phone number entries', async () => {
 	expect(result.isValid).toBe(true);
 });
 
-test('invalidates email addresses entries with long usernames with the same phone number', async () => {
+test('invalidates email addresses entries with long usernames', async () => {
 	let result = await validator.byEmailAndPhoneNumberHistorically('1LoGSqqulmepMdkuFpvfm3p3L@gmail.com', '(111) 222-3333');
 	expect(result.isValid).toBe(false);
 	expect(result.reason).toBe("Username of the email too long");
@@ -71,7 +71,7 @@ test('invalidates email addresses entries with long usernames with the same phon
 	expect(result.reason).toBe("Username of the email too long");
 });
 
-test('invalidates entries with similar email address pattern and the same phone number', async () => {
+test('invalidates entries starting with the same alphabet characters in the email address and the same phone number after two tries', async () => {
 	let result = await validator.byEmailAndPhoneNumberHistorically('email0001@mail.com', '(111) 222-3333');
 	expect(result.isValid).toBe(true);
 
