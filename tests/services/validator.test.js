@@ -33,6 +33,7 @@ test('extracts username by the alpha-numberic pattern', () => {
 	expect(validator.extractAlphaNumbericPattern('john')).toBeNull();
 });
 
+
 test('allows a valid email address and phone number', async () => {
 	let result = await validator.byEmailAndPhoneNumberHistorically('email0001@mail.com', '111-222-3333');
 	expect(result.isValid).toBe(true);
@@ -102,4 +103,7 @@ test('invalidates entries with similar email address pattern and the same phone 
 	result = await validator.byEmailAndPhoneNumberHistorically('anotherOne9999902@mail.com', '(111) 222-3333');
 	expect(result.isValid).toBe(false);
 	expect(result.reason).toBe("Repeated email and phone number detected: 3");
+
+	result = await validator.byEmailAndPhoneNumberHistorically('anotherOne9999902@mail.com232', '(111) 222-3333');
+	expect(result.isValid).toBe(true);
 });

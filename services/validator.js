@@ -8,13 +8,17 @@ export class Validator {
 		return EMAIL_REGEX.test(emailAddress);
 	}
 
-	getUserNameFromEmailAddress(emailAddress) {
-		return emailAddress.substring(0, emailAddress.indexOf('@'));
-	}
-
 	isValidPhoneNumber(phoneNumber) {
 		const PHONE_NUMBER_REGEX = /^\(?[0-9]{3}[\)\- ]?[ ]?[0-9]{3}[\- ]?[0-9]{4}$/;
 		return PHONE_NUMBER_REGEX.test(phoneNumber);
+	}
+
+	getUserNameAndDomainFromEmailAddress(emailAddress) {
+		const parts = emailAddress.split('@');
+		return {
+			username: parts[0],
+			domain: parts[1]
+		}
 	}
 
 	extractAlphaNumbericPattern(text) {
@@ -31,15 +35,15 @@ export class Validator {
 		if (!this.isValidPhoneNumber(phoneNumber)) {
 			return this.buildResponse(false, "Invalid phone");
 		}
-		const username = this.getUserNameFromEmailAddress(emailAddress);
-		if (username.length >= 24) {
+		const emailParts = this.getUserNameAndDomainFromEmailAddress(emailAddress);
+		if (emailParts.username.length >= 24) {
 			return this.buildResponse(false, "Username of the email too long");
 		}
 
-		const usernameGroups = this.extractAlphaNumbericPattern(username);
+		const usernameGroups = this.extractAlphaNumbericPattern(emailParts.username);
 
 		if (usernameGroups) {
-			const key = `${usernameGroups.firstPart}-${phoneNumber}`;
+			const key = this.buildEdgeKVKey(usernameGroups.firstPart, emailParts.domain, phoneNumber);
 			const previousEntries = await this.database.getByKey(key);
 
 			if (previousEntries === null) { 
@@ -64,6 +68,9 @@ export class Validator {
 			isValid: isValid,
 			reason: reason
 		}
+	}
+	buildEdgeKVKey(usernameAlphabetPart, emailDomain, phoneNumber) {
+		return `${usernameAlphabetPart}-${emailDomain}-${phoneNumber}`.replaceAll(/[^a-zA-Z0-9-_]/g, '-')
 	}
 }
 
