@@ -9,8 +9,20 @@ export class Validator {
 	}
 
 	isValidPhoneNumber(phoneNumber) {
-		const PHONE_NUMBER_REGEX = /^\(?[0-9]{3}[\)\- ]?[ ]?[0-9]{3}[\- ]?[0-9]{4}$/;
-		return PHONE_NUMBER_REGEX.test(phoneNumber);
+		const PHONE_NUMBER_REGEX = /^\(?[0-9]{3}[\)\- ]?[ ]?(?<prefix>[0-9]{3})[\- ]?(?<lineNumber>[0-9]{4})$/;
+		
+		const matchResult = phoneNumber.match(PHONE_NUMBER_REGEX);
+
+		if (matchResult != null) {
+			if (matchResult.groups.prefix === '555') {
+				const lineNumber = parseInt(matchResult.groups.lineNumber);
+				if (lineNumber > 99 && lineNumber < 200) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
 	}
 
 	getUserNameAndDomainFromEmailAddress(emailAddress) {

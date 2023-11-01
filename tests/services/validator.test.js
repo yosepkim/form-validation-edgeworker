@@ -71,6 +71,20 @@ test('invalidates email addresses entries with long usernames', async () => {
 	expect(result.reason).toBe("Username of the email too long");
 });
 
+test('invalidates phone numbers with fictional prefixes', async() => {
+	let result = await validator.byEmailAndPhoneNumberHistorically('email0001@mail.com', '770-555-0099');
+	expect(result.isValid).toBe(true);
+
+	result = await validator.byEmailAndPhoneNumberHistorically('email0001@mail.com', '770-555-0100');
+	expect(result.isValid).toBe(false);
+
+	result = await validator.byEmailAndPhoneNumberHistorically('email0001@mail.com', '770-555-0199');
+	expect(result.isValid).toBe(false);
+
+	result = await validator.byEmailAndPhoneNumberHistorically('email0001@mail.com', '770-555-0200');
+	expect(result.isValid).toBe(true);
+});
+
 test('invalidates entries starting with the same alphabet characters in the email address and the same phone number after two tries', async () => {
 	let result = await validator.byEmailAndPhoneNumberHistorically('email0001@mail.com', '(111) 222-3333');
 	expect(result.isValid).toBe(true);
