@@ -1,11 +1,17 @@
-steps:
-    - uses: actions/checkout@v1
-    - name: Deploy Edgeworkers
-      uses: jdmevo123/akamai-edgeworker-action@1.1
-      env:
-        EDGERC: ${{ secrets.AKAMAI_EDGERC }}
-        WORKER_DIR: workerdirname
-      with:
-        edgeworkersName: ${{ github.event.repository.name }}
-        network: 'production'
-        groupid: '0' 
+name: Deploy Edgeworkers
+on: [push]
+
+jobs:
+  Deploy-to-Prod:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Deploy Edgeworkers
+        uses: jdmevo123/akamai-edgeworker-action@1.1
+        env:
+          EDGERC: ${{ secrets.AKAMAI_EDGERC }}
+          WORKER_DIR: workerdirname
+        with:
+          edgeworkersName: ${{ github.event.repository.name }}
+          network: 'production'
+          groupid: '0' 
