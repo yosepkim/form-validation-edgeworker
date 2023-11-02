@@ -15,7 +15,7 @@ jobs:
         run: echo -e "[default]\nhost=${{ secrets.akamai_host }}\nclient_token=${{ secrets.akamai_client_token }}\naccess_token=${{ secrets.akamai_access_token }}\nclient_secret=${{ secrets.akamai_client_secret }}" > ~/.edgerc
       - name: Push EdgeWorker code
         run: |
-              cat ~/.edgerc
+              ls
               akamai edgeworkers upload --codeDir . ${{ vars.EW_ID }}
         
   push-to-staging:
