@@ -1,17 +1,46 @@
-name: Deploy Edgeworkers
-on: [push]
-
+name: publish-edgeworker
+on: 
+  push:
+    branches:
+      - main
+      - master
 jobs:
-  Deploy-to-Prod:
+  deploy:
     runs-on: ubuntu-latest
+    container: akamai/edgeworkers:latest
     steps:
-      - uses: actions/checkout@v1
-      - name: Deploy Edgeworkers
-        uses: jdmevo123/akamai-edgeworker-action@1.1
-        env:
-          EDGERC: ${{ secrets.AKAMAI_EDGERC }}
-          WORKER_DIR: workerdirname
-        with:
-          edgeworkersName: ${{ github.event.repository.name }}
-          network: 'production'
-          groupid: '0' 
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Set up edgerc
+        run: echo -e "[default]\nhost=${{ secrets.akamai_host }}\nclient_token=${{ secrets.akamai_client_token }}\naccess_token=${{ secrets.akamai_access_token }}\nclient_secret=${{ secrets.akamai_client_secret }}" > ~/.edgerc
+      - name: Push EdgeWorker code
+        run: akamai edgeworkers upload --codeDir . ${{ vars.EW_ID }}
+        
+  push-to-staging:
+    needs: deploy
+    runs-on: ubuntu-latest
+    container: akamai/edgeworkers:latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Set up edgerc
+        run: echo -e "[default]\nhost=${{ secrets.akamai_host }}\nclient_token=${{ secrets.akamai_client_token }}\naccess_token=${{ secrets.akamai_access_token }}\nclient_secret=${{ secrets.akamai_client_secret }}" > ~/.edgerc
+      - name: Activate to staging
+        run: |
+              VERSION=$(cat bundle.json | grep edgeworker-version | sed -E "s/.*edgeworker-version\": \"([^\"]+).*/\1/")
+              akamai edgeworkers activate ${{ vars.EW_ID }} staging $VERSION
+        
+  push-to-production:
+    needs: push-to-staging
+    environment: production
+    runs-on: ubuntu-latest
+    container: akamai/edgeworkers:latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Set up edgerc
+        run: echo -e "[default]\nhost=${{ secrets.akamai_host }}\nclient_token=${{ secrets.akamai_client_token }}\naccess_token=${{ secrets.akamai_access_token }}\nclient_secret=${{ secrets.akamai_client_secret }}" > ~/.edgerc
+      - name: Activate to production
+        run: |
+              VERSION=$(cat bundle.json | grep edgeworker-version | sed -E "s/.*edgeworker-version\": \"([^\"]+).*/\1/")
+              akamai edgeworkers activate ${{ vars.EW_ID }} production $VERSION
