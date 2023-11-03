@@ -19,12 +19,9 @@ jobs:
         run: tar cvzf tarball.tgz main.js bundle.json edgekv.js edgekv_tokens.js services
       - name: Push EdgeWorker code
         run: |
-              akamai --version
               akamai --accountkey ${{ vars.ACCOUNT_KEY }} edgeworkers upload --bundle tarball.tgz ${{ vars.EW_ID }}
               VERSION=$(grep "edgeworker-version" bundle.json | grep -Eo '"[0-9\.]+"')
-              echo "akamai edgeworkers activate 80521 staging "0.40" --accountkey 1-5BYUG1:1-8BYUX"
-              akamai edgeworkers activate 80521 staging "0.40" --accountkey 1-5BYUG1:1-8BYUX
-        
+              akamai  edgeworkers activate ${{ vars.EW_ID }} staging $VERSION --accountkey ${{ vars.ACCOUNT_KEY }}
         
   push-to-staging:
     needs: deploy
@@ -38,7 +35,7 @@ jobs:
       - name: Activate to staging
         run: |
               VERSION=$(grep "edgeworker-version" bundle.json | grep -Eo '"[0-9\.]+"')
-              akamai --accountkey ${{ vars.ACCOUNT_KEY }} edgeworkers activate ${{ vars.EW_ID }} staging $VERSION
+              akamai  edgeworkers activate ${{ vars.EW_ID }} staging $VERSION --accountkey ${{ vars.ACCOUNT_KEY }}
         
   push-to-production:
     needs: push-to-staging
