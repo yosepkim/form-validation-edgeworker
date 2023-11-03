@@ -32,6 +32,8 @@ jobs:
       - name: Activate to staging
         run: |
               VERSION=$(cat bundle.json | grep edgeworker-version | sed -E 's/.*edgeworker-version\"://')
+              ls
+              pwd
               cat bundle.json
               echo "Version: $VERSION"
               akamai --accountkey ${{ vars.ACCOUNT_KEY }} edgeworkers activate ${{ vars.EW_ID }} staging $VERSION
