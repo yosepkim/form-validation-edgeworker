@@ -18,7 +18,7 @@ jobs:
       - name: Build deployment tarball
         run: tar cvzf tarball.tgz main.js bundle.json edgekv.js edgekv_tokens.js services
       - name: Push EdgeWorker code
-        run: akamai --accountkey ${{ vars.ACCOUNT_KEY }} edgeworkers upload --bundle tarball.tgz ${{ vars.EW_ID }}
+        run: akamai edgeworkers upload --bundle tarball.tgz ${{ vars.EW_ID }}
         
   push-to-staging:
     needs: deploy
