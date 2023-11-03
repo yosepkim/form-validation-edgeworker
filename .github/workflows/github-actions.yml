@@ -5,7 +5,15 @@ on:
       - main
       - master
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    container: node:18
+    steps:
+      - name: Run tests
+        run: node --experimental-vm-modules node_modules/.bin/jest
+
   deploy:
+    needs: test
     runs-on: ubuntu-latest
     container: akamai/edgeworkers:latest
     steps:
