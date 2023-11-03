@@ -20,25 +20,6 @@ jobs:
       - name: Push EdgeWorker code
         run: akamai --accountkey ${{ vars.ACCOUNT_KEY }} edgeworkers upload --bundle tarball.tgz ${{ vars.EW_ID }}
         
-  push-to-staging:
-    needs: deploy
-    runs-on: ubuntu-latest
-    container: akamai/edgeworkers:latest
-    steps:
-      - name: Get code
-        uses: actions/checkout@v3
-      - name: Set up edgerc
-        run: echo -e "[default]\nhost=${{ secrets.akamai_host }}\nclient_token=${{ secrets.akamai_client_token }}\naccess_token=${{ secrets.akamai_access_token }}\nclient_secret=${{ secrets.akamai_client_secret }}" > ~/.edgerc
-      - name: Activate to staging
-        run: |
-              akamai --accountkey 1-5BYUG1 edgeworkers lv 80521
-              echo "--------------------"
-              VERSION=$(grep "edgeworker-version" bundle.json | grep -Eo '"[0-9\.]+"')
-              echo "akamai edgeworkers activate --accountkey ${{ vars.ACCOUNT_KEY }} ${{ vars.EW_ID }} staging $VERSION"
-              echo "Let's do this"
-              akamai edgeworkers activate 80521 staging "0.41" --accountkey 1-5BYUG1
-              akamai --accountkey ${{ vars.ACCOUNT_KEY }} edgeworkers activate ${{ vars.EW_ID }} staging $VERSION
-        
   push-to-production:
     needs: push-to-staging
     environment: production
