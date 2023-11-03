@@ -22,7 +22,8 @@ jobs:
               akamai --version
               akamai --accountkey ${{ vars.ACCOUNT_KEY }} edgeworkers upload --bundle tarball.tgz ${{ vars.EW_ID }}
               VERSION=$(grep "edgeworker-version" bundle.json | grep -Eo '"[0-9\.]+"')
-              akamai --accountkey ${{ vars.ACCOUNT_KEY }} edgeworkers activate ${{ vars.EW_ID }} staging $VERSION
+              echo "akamai edgeworkers activate 80521 staging "0.40" --accountkey 1-5BYUG1:1-8BYUX"
+              akamai edgeworkers activate 80521 staging "0.40" --accountkey 1-5BYUG1:1-8BYUX
         
         
   push-to-staging:
