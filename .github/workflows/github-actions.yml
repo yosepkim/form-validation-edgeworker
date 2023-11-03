@@ -9,7 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     container: node:18
     steps:
-      - name: Set up
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Set up test runner
         run: npm install
       - name: Run tests
         run: node --experimental-vm-modules node_modules/.bin/jest
