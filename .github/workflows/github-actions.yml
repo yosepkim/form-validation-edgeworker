@@ -32,7 +32,7 @@ jobs:
       - name: Activate to staging
         run: |
               VERSION=$(cat bundle.json | grep edgeworker-version | sed -E "s/.*edgeworker-version\": \"([^\"]+).*/\1/")
-              akamai edgeworkers activate ${{ vars.EW_ID }} staging $VERSION
+              akamai --accountkey ${{ vars.ACCOUNT_KEY }} edgeworkers activate ${{ vars.EW_ID }} staging $VERSION
         
   push-to-production:
     needs: push-to-staging
@@ -47,4 +47,4 @@ jobs:
       - name: Activate to production
         run: |
               VERSION=$(cat bundle.json | grep edgeworker-version | sed -E "s/.*edgeworker-version\": \"([^\"]+).*/\1/")
-              akamai edgeworkers activate ${{ vars.EW_ID }} production $VERSION
+              akamai --accountkey ${{ vars.ACCOUNT_KEY }} edgeworkers activate ${{ vars.EW_ID }} production $VERSION
