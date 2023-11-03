@@ -36,6 +36,7 @@ jobs:
               pwd
               cat bundle.json
               echo "Version: $VERSION"
+              echo "akamai --accountkey ${{ vars.ACCOUNT_KEY }} edgeworkers activate ${{ vars.EW_ID }} staging $VERSION"
               akamai --accountkey ${{ vars.ACCOUNT_KEY }} edgeworkers activate ${{ vars.EW_ID }} staging $VERSION
         
   push-to-production:
