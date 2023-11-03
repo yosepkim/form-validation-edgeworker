@@ -35,6 +35,7 @@ jobs:
               echo "--------------------"
               VERSION=$(grep "edgeworker-version" bundle.json | grep -Eo '"[0-9\.]+"')
               echo "akamai edgeworkers activate --accountkey ${{ vars.ACCOUNT_KEY }} ${{ vars.EW_ID }} staging $VERSION"
+              echo "Let's do this"
               akamai edgeworkers activate 80521 staging "0.41" --accountkey 1-5BYUG1
               akamai --accountkey ${{ vars.ACCOUNT_KEY }} edgeworkers activate ${{ vars.EW_ID }} staging $VERSION
         
