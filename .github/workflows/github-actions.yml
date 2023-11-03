@@ -18,13 +18,7 @@ jobs:
       - name: Build deployment tarball
         run: tar cvzf tarball.tgz main.js bundle.json edgekv.js edgekv_tokens.js services
       - name: Push EdgeWorker code
-        run: |
-              akamai --accountkey ${{ vars.ACCOUNT_KEY }} edgeworkers upload --bundle tarball.tgz ${{ vars.EW_ID }}
-              #VERSION=$(grep "edgeworker-version" bundle.json | grep -Eo '"[0-9\.]+"')
-              #echo "akamai edgeworkers activate ${{ vars.EW_ID }} staging $VERSION --accountkey ${{ vars.ACCOUNT_KEY }}"
-              #akamai edgeworkers activate ${{ vars.EW_ID }} staging $VERSION --accountkey ${{ vars.ACCOUNT_KEY }}
-              echo "akamai edgeworkers activate 80521 staging "0.40" --accountkey 1-5BYUG1"
-              akamai edgeworkers activate 80521 staging "0.40" --accountkey 1-5BYUG1
+        run: akamai --accountkey ${{ vars.ACCOUNT_KEY }} edgeworkers upload --bundle tarball.tgz ${{ vars.EW_ID }}
         
   push-to-staging:
     needs: deploy
@@ -37,7 +31,7 @@ jobs:
         run: echo -e "[default]\nhost=${{ secrets.akamai_host }}\nclient_token=${{ secrets.akamai_client_token }}\naccess_token=${{ secrets.akamai_access_token }}\nclient_secret=${{ secrets.akamai_client_secret }}" > ~/.edgerc
       - name: Activate to staging
         run: |
-              VERSION=$(grep "edgeworker-version" bundle.json | grep -Eo '"[0-9\.]+"')
+              VERSION=$(grep "edgeworker-version" bundle.json | grep -Eo '[0-9\.]+')
               akamai  edgeworkers activate ${{ vars.EW_ID }} staging $VERSION --accountkey ${{ vars.ACCOUNT_KEY }}
         
   push-to-production:
@@ -52,5 +46,5 @@ jobs:
         run: echo -e "[default]\nhost=${{ secrets.akamai_host }}\nclient_token=${{ secrets.akamai_client_token }}\naccess_token=${{ secrets.akamai_access_token }}\nclient_secret=${{ secrets.akamai_client_secret }}" > ~/.edgerc
       - name: Activate to production
         run: |
-              VERSION=$(grep "edgeworker-version" bundle.json | grep -Eo '"[0-9\.]+"')
+              VERSION=$(grep "edgeworker-version" bundle.json | grep -Eo '[0-9\.]+')
               akamai --accountkey ${{ vars.ACCOUNT_KEY }} edgeworkers activate ${{ vars.EW_ID }} production $VERSION
