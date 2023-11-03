@@ -19,6 +19,7 @@ jobs:
         run: tar cvzf tarball.tgz main.js bundle.json edgekv.js edgekv_tokens.js services
       - name: Push EdgeWorker code
         run: |
+              akamai --version
               akamai --accountkey ${{ vars.ACCOUNT_KEY }} edgeworkers upload --bundle tarball.tgz ${{ vars.EW_ID }}
               VERSION=$(grep "edgeworker-version" bundle.json | grep -Eo '"[0-9\.]+"')
               akamai --accountkey ${{ vars.ACCOUNT_KEY }} edgeworkers activate ${{ vars.EW_ID }} staging $VERSION
