@@ -1,0 +1,47 @@
+trigger:
+- gitflow-update
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  - name: tag
+    value: '$(Build.BuildNumber)'
+
+stages:
+- stage: test
+  displayName: 'Build'
+  jobs:
+  - job: build_test
+    displayName: 'Build and test'
+    pool:
+      vmImage: 'Ubuntu-latest'
+    steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '18.x'
+      displayName: 'Install Node.js'
+    - script: |
+        npm install
+        node --experimental-vm-modules node_modules/.bin/jest
+      displayName: 'npm install, run Jest tests'
+
+- stage: staging
+  displayName: 'Staging'
+  dependsOn: build
+  jobs:
+  - deployment: deployStaging
+    displayName: 'Deploy staging'
+    environment: carshopStagingEnv
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: Bash@3
+            inputs:
+              targetType: 'filpath'
+              filepath: './azure-pipeline/deploy.sh'
+            env:
+              TARGET_ENV: 'staging'
+              EW_ID: '80521'
+              ACCOUNT_KEY: '1-5BYUG1'
