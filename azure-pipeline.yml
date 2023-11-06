@@ -26,13 +26,49 @@ stages:
         node --experimental-vm-modules node_modules/.bin/jest
       displayName: 'npm install, run Jest tests'
 
+- stage: upload
+  displayName: 'Uploading'
+  dependsOn: test
+  jobs:
+  - deployment: upload
+    displayName: 'Uploading'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: Bash@3
+            inputs:
+              targetType: 'filpath'
+              filepath: './azure-pipeline/upload.sh'
+            env:
+              EW_ID: '80521'
+              ACCOUNT_KEY: '1-5BYUG1'
+
 - stage: staging
   displayName: 'Staging'
-  dependsOn: build
+  dependsOn: upload
   jobs:
-  - deployment: deployStaging
-    displayName: 'Deploy staging'
-    environment: carshopStagingEnv
+  - deployment: activateStaging
+    displayName: 'Activate staging'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: Bash@3
+            inputs:
+              targetType: 'filpath'
+              filepath: './azure-pipeline/activate.sh'
+            env:
+              TARGET_ENV: 'staging'
+              EW_ID: '80521'
+              ACCOUNT_KEY: '1-5BYUG1'
+
+- stage: production
+  displayName: 'Production'
+  dependsOn: staging
+  jobs:
+  - deployment: activateProduction
+    displayName: 'Activate production'
     strategy:
       runOnce:
         deploy:
@@ -42,6 +78,6 @@ stages:
               targetType: 'filpath'
               filepath: './azure-pipeline/deploy.sh'
             env:
-              TARGET_ENV: 'staging'
+              TARGET_ENV: 'production'
               EW_ID: '80521'
               ACCOUNT_KEY: '1-5BYUG1'
